@@ -24,7 +24,7 @@ export const up = (pgm) => {
     role: {
       type: 'VARCHAR(20)',
       notNull: true,
-      check: "role ON ('agent', 'user')",
+      check: "role IN ('agent', 'user')",
     },
     content: {
       type: 'TEXT',
