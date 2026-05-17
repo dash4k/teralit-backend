@@ -1,0 +1,36 @@
+{
+  "name": "teralit-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "nodemon src/server.js",
+    "lint": "eslint ./ --fix",
+    "migrate": "node-pg-migrate",
+    "migrate:refresh": "node-pg-migrate down 9999 && node-pg-migrate up"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "joi": "^18.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
+    "nanoid": "^5.1.11",
+    "node-pg-migrate": "^8.0.4",
+    "pg": "^8.20.0",
+    "redis": "^5.12.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "eslint-config-dicodingacademy": "^0.9.5",
+    "globals": "^17.6.0",
+    "nodemon": "^3.1.14"
+  }
+}
