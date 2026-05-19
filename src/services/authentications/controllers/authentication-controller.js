@@ -25,7 +25,9 @@ export const login = async (req, res, next) => {
   const accessToken = TokenManager.generateAccessToken({ id: userId });
   const refreshToken = TokenManager.generateRefreshToken({ id: userId });
 
-  return response(res, 200, 'Login success', {
+  await AuthenticationRepositories.createAuthentication(refreshToken);
+
+  return response(res, 201, 'Login success', {
     accessToken,
     refreshToken
   });
