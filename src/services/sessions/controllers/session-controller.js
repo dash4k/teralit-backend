@@ -39,7 +39,7 @@ export const viewSession = async (req, res, next) => {
   if (!validOwner) return next(new AuthorizationError('You don\'t have access to the following resource'));
 
   try {
-    const session = await SessionRepositories.getUserSession(userId);
+    const session = await SessionRepositories.getUserSession(sessionId);
     return response(res, 200, 'Session found', session);
   } catch (error) {
     console.error('error: ', error.message);
