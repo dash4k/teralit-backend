@@ -5,5 +5,15 @@ import daStyle from 'eslint-config-dicodingacademy';
 
 export default defineConfig([
   daStyle,
-  { files: ['**/*.{js,mjs,cjs}'], plugins: { js }, extends: ['js/recommended'], languageOptions: { globals: { ...globals.browser, ...globals.node } } },
+  {
+    files: ['**/*.{js,mjs,cjs}'],
+    plugins: { js },
+    extends: ['js/recommended'],
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node }
+    },
+    rules: {
+      'eol-last': ['error', 'always'],
+    }
+  },
 ]);
