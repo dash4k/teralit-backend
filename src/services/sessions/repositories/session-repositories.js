@@ -58,7 +58,13 @@ class SessionRepositories {
       values: [sessionId],
     });
 
-    return result.rows[0];
+    return {
+      id: result.rows[0].id,
+      userId: result.rows[0].user_id,
+      status: result.rows[0].status,
+      createdAt: result.rows[0].created_at,
+      updatedAt: result.rows[0].updated_at,
+    };
   }
 
   async updateSessionStatus(sessionId, status) {
@@ -82,7 +88,7 @@ class SessionRepositories {
 
     return {
       id: result.rows[0].id,
-      createdAt: result.rows[0].created_at,
+      updatedAt: result.rows[0].updated_at,
     };
   }
 
