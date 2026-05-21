@@ -11,10 +11,10 @@ export const uploadImage = async (req, res, next) => {
   const { id: userId } = req.user;
   if (!req.file) return next(new ClientError('Image is required'));
 
-  const validSession = SessionRepositories.verifySessionId(sessionId);
+  const validSession = await SessionRepositories.verifySessionId(sessionId);
   if (!validSession) return next(new NotFoundError('Session not found'));
 
-  const validSessionOwner = SessionRepositories.verifySessionOwner(userId, sessionId);
+  const validSessionOwner = await SessionRepositories.verifySessionOwner(userId, sessionId);
   if (!validSessionOwner) return next(new AuthorizationError('You don\'t have access to the following resource'));
 
   try {
@@ -30,17 +30,17 @@ export const viewImage = async (req, res, next) => {
   const { sessionId } = req.params;
   const { id: userId } = req.user;
 
-  const validSession = SessionRepositories.verifySessionId(sessionId);
+  const validSession = await SessionRepositories.verifySessionId(sessionId);
   if (!validSession) return next(new NotFoundError('Session not found'));
 
-  const validSessionOwner = SessionRepositories.verifySessionOwner(userId, sessionId);
+  const validSessionOwner = await SessionRepositories.verifySessionOwner(userId, sessionId);
   if (!validSessionOwner) return next(new AuthorizationError('You don\'t have access to the following resource'));
 
   try {
-    const image = SessionImageRepositories.getSessionImage(sessionId);
+    const image = await SessionImageRepositories.getSessionImage(sessionId);
     res.setHeader('Content-Disposition', `inline; filename="${image.filename}"`);
     res.status(200);
-    return res.sendFile(image);
+    return res.sendFile(image.path);
   } catch (error) {
     console.error(error);
     return next(new InvariantError('Error while trying to display image'));
