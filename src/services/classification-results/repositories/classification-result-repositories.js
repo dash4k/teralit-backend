@@ -29,7 +29,15 @@ class ClassificationResultRepositories {
       values: [sessionId],
     });
 
-    return result.rows[0];
+    return {
+      id: result.rows[0].id,
+      sessionId: result.rows[0].session_id,
+      diagnosis: result.rows[0].diagnosis,
+      confidence: result.rows[0].confidence,
+      riskLevel: result.rows[0].risk_level,
+      details: result.rows[0].details,
+      createdAt: result.rows[0].created_at,
+    };
   }
 }
 
