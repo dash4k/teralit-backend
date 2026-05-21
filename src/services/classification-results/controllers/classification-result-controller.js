@@ -40,7 +40,7 @@ export const makePrediction = async (req, res, next) => {
   const modelResponseJson = await modelResponse.json();
 
   try {
-    const id = await ClassificationResultRepositories.createClassificationResult(modelResponseJson);
+    const id = await ClassificationResultRepositories.createClassificationResult(sessionId, modelResponseJson);
     return response(res, 201, 'Classification result created successfully', id);
   } catch (error) {
     console.error('error: ', error.message);
