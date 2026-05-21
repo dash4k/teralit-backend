@@ -11,7 +11,7 @@ class SessionImageRepositories {
     const createdAt = new Date().toISOString();
 
     const result = await this._pool.query({
-      text: 'INSERT INTO session_images VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+      text: 'INSERT INTO session_images VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, mimetype',
       values: [id, sessionId, path, filename, mimetype, createdAt],
     });
 
@@ -20,11 +20,14 @@ class SessionImageRepositories {
 
   async getSessionImage(sessionId) {
     const result = await this._pool.query({
-      text: 'SELECT * FROM session_images WHERE user_id = $1',
+      text: 'SELECT file_name, file_path FROM session_images WHERE session_id = $1',
       values: [sessionId],
     });
 
-    return result.rows[0];
+    return {
+      filename: result.rows[0].file_name,
+      path: result.rows[0].file_path,
+    };
   }
 }
 
