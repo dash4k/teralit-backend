@@ -26,14 +26,12 @@ export const makePrediction = async (req, res, next) => {
 
   const modelResponse = await fetch(`${process.env.MODEL_PROTOCOL}://${process.env.MODEL_HOST}:${process.env.MODEL_PORT}/predict`, {
     method: 'POST',
-    body: {
-      image: formData,
-    },
+    body: formData,
   });
 
   if (!modelResponse.ok) {
     const err = await modelResponse.json();
-    console.error('error: ', err.message);
+    console.error(err);
     return next(new InvariantError('Error while trying to create prediction'));
   }
 
@@ -59,7 +57,7 @@ export const viewPrediction = async (req, res, next) => {
   if (!validSessionOwner) return next(new AuthorizationError('You don\'t have access to the following resource'));
 
   try {
-    const classification = ClassificationResultRepositories.getClassificationResult(sessionId);
+    const classification = await ClassificationResultRepositories.getClassificationResult(sessionId);
     return response(res, 200, 'Classification result found', classification);
   } catch (error) {
     console.error('error: ', error.message);
