@@ -98,6 +98,15 @@ class SessionRepositories {
       values: [sessionId],
     });
   }
+
+  async getSessionImage(sessionId) {
+    const result = await this._pool.query({
+      text: 'SELECT file_path as path, mimetype, file_name as filename FROM session_images WHERE session_id = $1',
+      values: [sessionId],
+    });
+
+    return result.rows[0];
+  }
 }
 
 export default new SessionRepositories();
