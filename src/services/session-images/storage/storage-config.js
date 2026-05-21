@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import multer from 'multer';
-import ClientError from '../../../exceptions/client-error';
+import ClientError from '../../../exceptions/client-error.js';
 
 export const UPLOAD_FOLDER = path.resolve('src/services/uploads/files/images');
 
