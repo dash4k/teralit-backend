@@ -29,6 +29,10 @@ export const up = (pgm) => {
       type: 'REAL',
       notNull: true,
     },
+    risk_level: {
+      type: 'VARCHAR(50)',
+      notNull: true,
+    },
     details: {
       type: 'JSONB',
       notNull: true,
