@@ -29,6 +29,10 @@ export const up = (pgm) => {
       type: 'REAL',
       notNull: true,
     },
+    risk_level: {
+      type: 'VARCHAR(50)',
+      notNull: true,
+    },
     details: {
       type: 'JSONB',
       notNull: true,
@@ -40,6 +44,7 @@ export const up = (pgm) => {
   });
 
   pgm.createConstraint('classification_results', 'fk_classification_results.session_id_sessions.id', 'FOREIGN KEY(session_id) REFERENCES sessions(id) ON DELETE CASCADE');
+  pgm.createConstraint('classification_results', 'classification_results_session_id_unique', { unique: ['session_id'] });
 };
 
 /**
