@@ -29,6 +29,11 @@ export const up = (pgm) => {
       type: 'VARCHAR(100)',
       notNull: true,
     },
+    mimetype: {
+      type: 'VARCHAR(50)',
+      notNull: true,
+      check: "mimetype IN ('image/jpeg', 'image/png')",
+    },
     created_at: {
       type: 'TIMESTAMPTZ',
       notNull: true,
@@ -36,6 +41,7 @@ export const up = (pgm) => {
   });
 
   pgm.createConstraint('session_images', 'fk_session_images.session_id_sessions.id', 'FOREIGN KEY(session_id) REFERENCES sessions(id) ON DELETE CASCADE');
+  pgm.createConstraint('session_images', 'session_images_session_id_unique', { unique: ['session_id'] });
 };
 
 /**
