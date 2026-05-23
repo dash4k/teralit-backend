@@ -59,7 +59,7 @@ export const editStatus = async (req, res, next) => {
   if (!validOwner) return next(new AuthorizationError('You don\'t have access to the following resource'));
 
   try {
-    const session = await SessionRepositories.updateSessionStatus(sessionId, status);
+    const session = await SessionRepositories.updateSessionStatus(userId, sessionId, status);
     return response(res, 200, 'Session status updated successfully', session);
   } catch (error) {
     console.error('error: ', error.message);
@@ -78,7 +78,7 @@ export const editTimestamp = async (req, res, next) => {
   if (!validOwner) return next(new AuthorizationError('You don\'t have access to the following resource'));
 
   try {
-    const session = await SessionRepositories.updateSessionTimestamp(sessionId);
+    const session = await SessionRepositories.updateSessionTimestamp(userId, sessionId);
     return response(res, 200, 'Session timestamp updated successfully', session);
   } catch (error) {
     console.error('error: ', error.message);
@@ -96,7 +96,7 @@ export const removeSession = async (req, res, next) => {
   if (!validOwner) return next(new AuthorizationError('You don\'t have access to the following resource'));
 
   try {
-    await SessionRepositories.deleteSession(sessionId);
+    await SessionRepositories.deleteSession(userId, sessionId);
     return response(res, 200, 'Session deleted successfully');
   } catch (error) {
     console.error('error: ', error.message);
