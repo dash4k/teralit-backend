@@ -7,7 +7,7 @@ import sessionImages from '../services/session-images/routes/index.js';
 import classificationResults from '../services/classification-results/routes/index.js';
 import messages from '../services/messages/routes/index.js';
 import swaggerUi from 'swagger-ui-express';
-import swaggerFile from '../../swagger-output.json' with { type: 'json' };
+import swaggerFile from '../../swagger.config.json' with { type: 'json' };
 
 const router = Router();
 
