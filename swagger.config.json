@@ -1,755 +1,1455 @@
 {
-  "swagger": "2.0",
-  "info": {
-    "title": "Teralit API",
-    "description": "API Documentation for Teralit — includes Authentications, Users, Sessions, Images, Classifications, and Messages.",
-    "version": "1.0.0"
-  },
-  "host": "localhost:3000",
-  "basePath": "/",
-  "schemes": ["http"],
-  "securityDefinitions": {
-    "bearerAuth": {
-      "type": "apiKey",
-      "in": "header",
-      "name": "Authorization",
-      "description": "Enter your Bearer token in the format: Bearer <token>"
-    }
-  },
-  "paths": {
-    "/register": {
-      "post": {
-        "tags": ["Authentications"],
-        "summary": "Register a new user",
-        "description": "Creates a new user account with email, password, and name.",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": ["email", "password", "name"],
-              "properties": {
-                "email": { "type": "string", "example": "user@example.com" },
-                "password": { "type": "string", "example": "secret123" },
-                "name": { "type": "string", "example": "John Doe" }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "User successfully registered",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "User registered successfully" },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "id": { "type": "string", "example": "user-abc123" }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid payload or email already exists",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      }
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Teralit API",
+        "description": "API Documentation for Teralit — includes Authentications, Users, Sessions, Images, Classifications, and Messages.",
+        "version": "1.0.0"
     },
-    "/login": {
-      "post": {
-        "tags": ["Authentications"],
-        "summary": "Login user",
-        "description": "Authenticates a user and returns access and refresh tokens.",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": ["email", "password"],
-              "properties": {
-                "email": { "type": "string", "example": "user@example.com" },
-                "password": { "type": "string", "example": "secret123" }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Login successful",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "Login successful" },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "accessToken": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
-                    "refreshToken": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid payload",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          },
-          "401": {
-            "description": "Invalid credentials",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      }
-    },
-    "/authentications": {
-      "put": {
-        "tags": ["Authentications"],
-        "summary": "Refresh access token",
-        "description": "Issues a new access token using a valid refresh token.",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": ["refreshToken"],
-              "properties": {
-                "refreshToken": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Access token refreshed successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "Access token refreshed" },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "accessToken": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid or missing refresh token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      },
-      "delete": {
-        "tags": ["Authentications"],
-        "summary": "Logout / delete refresh token",
-        "description": "Invalidates the refresh token to log the user out.",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": ["refreshToken"],
-              "properties": {
-                "refreshToken": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Logout successful",
-            "schema": { "$ref": "#/definitions/SuccessNoData" }
-          },
-          "400": {
-            "description": "Invalid or missing refresh token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      }
-    },
-    "/profile": {
-      "get": {
-        "tags": ["Users"],
-        "summary": "Get user profile",
-        "description": "Returns the authenticated user's profile information.",
-        "security": [{ "bearerAuth": [] }],
-        "responses": {
-          "200": {
-            "description": "Profile retrieved successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "Profile retrieved" },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "id": { "type": "string", "example": "user-abc123" },
-                    "name": { "type": "string", "example": "John Doe" },
-                    "email": { "type": "string", "example": "user@example.com" }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      },
-      "put": {
-        "tags": ["Users"],
-        "summary": "Update user profile",
-        "description": "Updates the authenticated user's profile (name and/or email).",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": { "type": "string", "example": "Jane Doe" },
-                "email": { "type": "string", "example": "jane@example.com" }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Profile updated successfully",
-            "schema": { "$ref": "#/definitions/SuccessNoData" }
-          },
-          "400": {
-            "description": "Invalid payload",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      }
-    },
-    "/users": {
-      "delete": {
-        "tags": ["Users"],
-        "summary": "Delete user account",
-        "description": "Permanently deletes the authenticated user's account.",
-        "security": [{ "bearerAuth": [] }],
-        "responses": {
-          "200": {
-            "description": "Account deleted successfully",
-            "schema": { "$ref": "#/definitions/SuccessNoData" }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      }
-    },
-    "/sessions": {
-      "post": {
-        "tags": ["Sessions"],
-        "summary": "Create a new session",
-        "description": "Creates a new session for the authenticated user. No request body required.",
-        "security": [{ "bearerAuth": [] }],
-        "responses": {
-          "201": {
-            "description": "Session created successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "Session created" },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "id": { "type": "string", "example": "session-xyz789" }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      },
-      "get": {
-        "tags": ["Sessions"],
-        "summary": "Get all sessions",
-        "description": "Returns all sessions belonging to the authenticated user.",
-        "security": [{ "bearerAuth": [] }],
-        "responses": {
-          "200": {
-            "description": "Sessions retrieved successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "Sessions retrieved" },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "sessions": {
-                      "type": "array",
-                      "items": { "$ref": "#/definitions/Session" }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      }
-    },
-    "/sessions/{id}": {
-      "get": {
-        "tags": ["Sessions"],
-        "summary": "Get a specific session",
-        "description": "Returns a single session by its ID. Only accessible by the session owner.",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "type": "string", "example": "session-xyz789" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Session retrieved successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "Session retrieved" },
-                "data": { "$ref": "#/definitions/Session" }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          },
-          "403": {
-            "description": "Forbidden — not the session owner",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          },
-          "404": {
-            "description": "Session not found",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      },
-      "delete": {
-        "tags": ["Sessions"],
-        "summary": "Delete a session",
-        "description": "Deletes a session by its ID. Only accessible by the session owner.",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "type": "string", "example": "session-xyz789" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Session deleted successfully",
-            "schema": { "$ref": "#/definitions/SuccessNoData" }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          },
-          "403": {
-            "description": "Forbidden — not the session owner",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      }
-    },
-    "/sessions/{id}/status": {
-      "put": {
-        "tags": ["Sessions"],
-        "summary": "Update session status",
-        "description": "Updates the status of a session (e.g., 'completed'). Only the session owner can update.",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "type": "string", "example": "session-xyz789" },
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": ["status"],
-              "properties": {
-                "status": { "type": "string", "example": "completed", "enum": ["active", "completed"] }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Session status updated successfully",
-            "schema": { "$ref": "#/definitions/SuccessNoData" }
-          },
-          "400": {
-            "description": "Invalid status value",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          },
-          "403": {
-            "description": "Forbidden — not the session owner",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      }
-    },
-    "/sessions/{id}/timestamp": {
-      "put": {
-        "tags": ["Sessions"],
-        "summary": "Update session timestamp (updatedAt)",
-        "description": "Updates the updatedAt timestamp of a session. No request body required. Only the session owner can update.",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "type": "string", "example": "session-xyz789" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Timestamp updated successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "Session timestamp updated" },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "id": { "type": "string", "example": "session-xyz789" },
-                    "updatedAt": { "type": "string", "example": "2024-01-01T12:00:00.000Z" }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          },
-          "403": {
-            "description": "Forbidden — not the session owner",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      }
-    },
-    "/sessions/{sessionId}/images": {
-      "post": {
-        "tags": ["Session Images"],
-        "summary": "Upload an image to a session",
-        "description": "Uploads an image file associated with the given session.",
-        "security": [{ "bearerAuth": [] }],
-        "consumes": ["multipart/form-data"],
-        "parameters": [
-          { "name": "sessionId", "in": "path", "required": true, "type": "string", "example": "session-xyz789" },
-          { "name": "image", "in": "formData", "required": true, "type": "file", "description": "Image file to upload" }
-        ],
-        "responses": {
-          "201": {
-            "description": "Image uploaded successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "Image uploaded" },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "id": { "type": "string", "example": "img-abc123" },
-                    "url": { "type": "string", "example": "https://storage.example.com/image.jpg" }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          },
-          "403": {
-            "description": "Forbidden — not the session owner",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      },
-      "get": {
-        "tags": ["Session Images"],
-        "summary": "Get all images for a session",
-        "description": "Returns all images associated with the given session.",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "sessionId", "in": "path", "required": true, "type": "string", "example": "session-xyz789" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Images retrieved successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "Images retrieved" },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "images": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": { "type": "string", "example": "img-abc123" },
-                          "url": { "type": "string", "example": "https://storage.example.com/image.jpg" }
+    "paths": {
+        "/register": {
+            "post": {
+                "tags": [
+                    "Authentications"
+                ],
+                "summary": "Register a new user",
+                "description": "Creates a new user account with email, password, and name.",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "name"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    }
+                                }
+                            }
                         }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      }
-    },
-    "/sessions/{sessionId}/classifications": {
-      "post": {
-        "tags": ["Classification Results"],
-        "summary": "Create a classification result for a session",
-        "description": "Submits a classification result associated with the given session.",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "sessionId", "in": "path", "required": true, "type": "string", "example": "session-xyz789" },
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "result": { "type": "string", "example": "Healthy" },
-                "confidence": { "type": "number", "example": 0.95 }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Classification result created successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "Classification result saved" },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "id": { "type": "string", "example": "cls-abc123" }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          },
-          "403": {
-            "description": "Forbidden — not the session owner",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      },
-      "get": {
-        "tags": ["Classification Results"],
-        "summary": "Get classification results for a session",
-        "description": "Returns all classification results associated with the given session.",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "sessionId", "in": "path", "required": true, "type": "string", "example": "session-xyz789" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Classification results retrieved successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "Classification results retrieved" },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "classifications": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": { "type": "string", "example": "cls-abc123" },
-                          "result": { "type": "string", "example": "Healthy" },
-                          "confidence": { "type": "number", "example": 0.95 }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "User successfully registered",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User registered successfully"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "user-abc123"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      }
-    },
-    "/sessions/{sessionId}/messages": {
-      "post": {
-        "tags": ["Messages"],
-        "summary": "Send a message in a session",
-        "description": "Sends a user message to the AI agent within a session. Returns the agent's reply.",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "sessionId", "in": "path", "required": true, "type": "string", "example": "session-xyz789" },
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": ["role", "content"],
-              "properties": {
-                "role": { "type": "string", "example": "user", "enum": ["user"] },
-                "content": { "type": "string", "example": "what kind of disease am i having" }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Message sent and agent replied successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "Message sent" },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "agentMessage": { "type": "string", "example": "Based on your symptoms, it could be..." }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          },
-          "403": {
-            "description": "Forbidden — not the session owner",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
-        }
-      },
-      "get": {
-        "tags": ["Messages"],
-        "summary": "Get all messages in a session",
-        "description": "Returns all messages (user + agent) in the given session.",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "sessionId", "in": "path", "required": true, "type": "string", "example": "session-xyz789" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Messages retrieved successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string", "example": "success" },
-                "message": { "type": "string", "example": "Messages retrieved" },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "messages": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "role": { "type": "string", "example": "user" },
-                          "content": { "type": "string", "example": "what kind of disease am i having" }
+                    },
+                    "400": {
+                        "description": "Invalid payload or email already exists",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
                         }
-                      }
                     }
-                  }
                 }
-              }
             }
-          },
-          "401": {
-            "description": "Unauthorized — invalid or missing access token",
-            "schema": { "$ref": "#/definitions/ErrorResponse" }
-          }
+        },
+        "/login": {
+            "post": {
+                "tags": [
+                    "Authentications"
+                ],
+                "summary": "Login user",
+                "description": "Authenticates a user and returns access and refresh tokens.",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Login successful",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login successful"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "accessToken": {
+                                                    "type": "string",
+                                                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                                },
+                                                "refreshToken": {
+                                                    "type": "string",
+                                                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid payload",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/authentications": {
+            "put": {
+                "tags": [
+                    "Authentications"
+                ],
+                "summary": "Refresh access token",
+                "description": "Issues a new access token using a valid refresh token.",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/Body"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Access token refreshed successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Access token refreshed"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "accessToken": {
+                                                    "type": "string",
+                                                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or missing refresh token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Authentications"
+                ],
+                "summary": "Logout / delete refresh token",
+                "description": "Invalidates the refresh token to log the user out.",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/Body"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Logout successful",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessNoData"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or missing refresh token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/profile": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user profile",
+                "description": "Returns the authenticated user's profile information.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile retrieved successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Profile retrieved"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "user-abc123"
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user profile",
+                "description": "Updates the authenticated user's profile (name and/or email).",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Jane Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "jane@example.com"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessNoData"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid payload",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete user account",
+                "description": "Permanently deletes the authenticated user's account.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Account deleted successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessNoData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions": {
+            "post": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Create a new session",
+                "description": "Creates a new session for the authenticated user. No request body required.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Session created successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Session created"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "session-xyz789"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Get all sessions",
+                "description": "Returns all sessions belonging to the authenticated user.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sessions retrieved successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sessions retrieved"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "sessions": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Session"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{id}": {
+            "get": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Get a specific session",
+                "description": "Returns a single session by its ID. Only accessible by the session owner.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "example": "session-xyz789",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session retrieved successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Session retrieved"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Session"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden — not the session owner",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Session not found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Delete a session",
+                "description": "Deletes a session by its ID. Only accessible by the session owner.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "example": "session-xyz789",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session deleted successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessNoData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden — not the session owner",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{id}/status": {
+            "put": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Update session status",
+                "description": "Updates the status of a session (e.g., 'completed'). Only the session owner can update.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "example": "session-xyz789",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "completed",
+                                        "enum": [
+                                            "active",
+                                            "completed"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Session status updated successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessNoData"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden — not the session owner",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{id}/timestamp": {
+            "put": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Update session timestamp (updatedAt)",
+                "description": "Updates the updatedAt timestamp of a session. No request body required. Only the session owner can update.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "example": "session-xyz789",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Timestamp updated successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Session timestamp updated"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "session-xyz789"
+                                                },
+                                                "updatedAt": {
+                                                    "type": "string",
+                                                    "example": "2024-01-01T12:00:00.000Z"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden — not the session owner",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/images": {
+            "post": {
+                "tags": [
+                    "Session Images"
+                ],
+                "summary": "Upload an image to a session",
+                "description": "Uploads an image file associated with the given session.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "example": "session-xyz789",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "image": {
+                                        "description": "Image file to upload",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "required": [
+                                    "image"
+                                ]
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Image uploaded successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Image uploaded"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "img-abc123"
+                                                },
+                                                "url": {
+                                                    "type": "string",
+                                                    "example": "https://storage.example.com/image.jpg"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden — not the session owner",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Session Images"
+                ],
+                "summary": "Get all images for a session",
+                "description": "Returns all images associated with the given session.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "example": "session-xyz789",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Images retrieved successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Images retrieved"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "images": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "img-abc123"
+                                                            },
+                                                            "url": {
+                                                                "type": "string",
+                                                                "example": "https://storage.example.com/image.jpg"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/classifications": {
+            "post": {
+                "tags": [
+                    "Classification Results"
+                ],
+                "summary": "Create a classification result for a session",
+                "description": "Submits a classification result associated with the given session.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "example": "session-xyz789",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "result": {
+                                        "type": "string",
+                                        "example": "Healthy"
+                                    },
+                                    "confidence": {
+                                        "type": "number",
+                                        "example": 0.95
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Classification result created successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Classification result saved"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "cls-abc123"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden — not the session owner",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Classification Results"
+                ],
+                "summary": "Get classification results for a session",
+                "description": "Returns all classification results associated with the given session.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "example": "session-xyz789",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Classification results retrieved successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Classification results retrieved"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "classifications": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "cls-abc123"
+                                                            },
+                                                            "result": {
+                                                                "type": "string",
+                                                                "example": "Healthy"
+                                                            },
+                                                            "confidence": {
+                                                                "type": "number",
+                                                                "example": 0.95
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages": {
+            "post": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Send a message in a session",
+                "description": "Sends a user message to the AI agent within a session. Returns the agent's reply.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "example": "session-xyz789",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "role",
+                                    "content"
+                                ],
+                                "properties": {
+                                    "role": {
+                                        "type": "string",
+                                        "example": "user",
+                                        "enum": [
+                                            "user"
+                                        ]
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "example": "what kind of disease am i having"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Message sent and agent replied successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Message sent"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "agentMessage": {
+                                                    "type": "string",
+                                                    "example": "Based on your symptoms, it could be..."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden — not the session owner",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Get all messages in a session",
+                "description": "Returns all messages (user + agent) in the given session.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "example": "session-xyz789",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Messages retrieved successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Messages retrieved"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "messages": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "role": {
+                                                                "type": "string",
+                                                                "example": "user"
+                                                            },
+                                                            "content": {
+                                                                "type": "string",
+                                                                "example": "what kind of disease am i having"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — invalid or missing access token",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-      }
-    }
-  },
-  "definitions": {
-    "ErrorResponse": {
-      "type": "object",
-      "properties": {
-        "status": { "type": "string", "example": "failed" },
-        "message": { "type": "string", "example": "An error occurred" }
-      }
     },
-    "SuccessNoData": {
-      "type": "object",
-      "properties": {
-        "status": { "type": "string", "example": "success" },
-        "message": { "type": "string", "example": "Operation successful" }
-      }
-    },
-    "Session": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "string", "example": "session-xyz789" },
-        "status": { "type": "string", "example": "active" },
-        "updatedAt": { "type": "string", "example": "2024-01-01T12:00:00.000Z" },
-        "createdAt": { "type": "string", "example": "2024-01-01T10:00:00.000Z" }
-      }
+    "servers": [
+        {
+            "url": "http://localhost:3000"
+        }
+    ],
+    "components": {
+        "requestBodies": {
+            "Body": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "refreshToken"
+                            ],
+                            "properties": {
+                                "refreshToken": {
+                                    "type": "string",
+                                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": true
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "schemas": {
+            "ErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "example": "failed"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "An error occurred"
+                    }
+                }
+            },
+            "SuccessNoData": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "example": "success"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Operation successful"
+                    }
+                }
+            },
+            "Session": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "session-xyz789"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "active"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "example": "2024-01-01T12:00:00.000Z"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "example": "2024-01-01T10:00:00.000Z"
+                    }
+                }
+            }
+        }
     }
-  }
 }
