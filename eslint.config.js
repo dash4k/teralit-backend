@@ -14,6 +14,13 @@ export default defineConfig([
     },
     rules: {
       'eol-last': ['error', 'always'],
+      'no-unused-vars': ['error', {
+        vars: 'all',
+        args: 'all',
+        argsIgnorePattern: '^_',
+        caughtErrors: 'all',
+        caughtErrorsIgnorePattern: '^_',
+      }],
     }
   },
 ]);
