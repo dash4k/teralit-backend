@@ -15,6 +15,7 @@ Built with **Node.js**, **Express**, **PostgreSQL**, and **Redis**, with JWT-bas
 - AI agent chat (Ollama-powered) within sessions
 - Swagger UI for API exploration
 - Database migrations via `node-pg-migrate`
+- CORS support for cross-origin requests
 
 ---
 
@@ -30,7 +31,7 @@ Built with **Node.js**, **Express**, **PostgreSQL**, and **Redis**, with JWT-bas
 | Validation | Joi |
 | File Upload | Multer |
 | AI Model | Custom Model API + Ollama Agent API |
-| API Docs | Swagger (`swagger-autogen`, `swagger-ui-express`) |
+| API Docs | Swagger (`swagger-ui-express`) |
 | Linting | ESLint |
 | Dev Server | Nodemon |
 
@@ -117,9 +118,8 @@ The server will start on `<PROTOCOL>://<HOST>:<PORT>`.
 After starting the server, Swagger UI is available at:
 
 ```
-<PROTOCOL>://<HOST>:<PORT>/
+<PROTOCOL>://<HOST>:<PORT>/docs
 ```
-
 
 ### API Overview
 
@@ -145,15 +145,23 @@ Authorization: Bearer <accessToken>
 
 ```
 teralit-backend/
-├── migrations/        # node-pg-migrate migration files
+├── migrations/           # node-pg-migrate migration files
 ├── src/
-│   ├── server.js      # App entry point
-│   ├── swagger.js     # Swagger spec generator
-│   └── ...            # Routes, handlers, services, middlewares
-├── .env.example       # Environment variable template
-├── swagger.config.json # Generated Swagger spec
+│   ├── server.js         # App entry point
+│   ├── server/
+│   │   └── index.js      # Express app initialization
+│   ├── routes/           # API route definitions
+│   ├── services/         # Business logic and external API calls
+│   ├── middlewares/      # Express middlewares (auth, error handling)
+│   ├── security/         # Security utilities (JWT, encryption)
+│   ├── cache/            # Redis cache utilities
+│   ├── exceptions/       # Custom error classes
+│   └── utils/            # Helper functions and utilities
+├── .env.example          # Environment variable template
 ├── package.json
-└── eslint.config.js
+├── package-lock.json
+├── swagger.config.json   # Generated Swagger spec
+└── eslint.config.js      # ESLint configuration
 ```
 
 ---
@@ -167,6 +175,26 @@ teralit-backend/
 | `npm run migrate` | Run pending database migrations |
 | `npm run migrate:refresh` | Roll back all migrations and re-run |
 | `npm run lint` | Lint and auto-fix code with ESLint |
+
+---
+
+## Development
+
+### Code Linting
+
+Run ESLint to check and fix code style:
+
+```bash
+npm run lint
+```
+
+### Database Migrations
+
+To create a new migration, use `node-pg-migrate`:
+
+```bash
+node-pg-migrate create <migration_name>
+```
 
 ---
 
