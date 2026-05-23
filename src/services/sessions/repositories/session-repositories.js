@@ -1,9 +1,11 @@
 import { Pool } from 'pg';
 import { nanoid } from 'nanoid';
+import CacheService from '../../../cache/redis-service.js';
 
 class SessionRepositories {
   constructor() {
     this._pool = new Pool();
+    this._cacheService = new CacheService();
   }
 
   async createSession(userId) {
@@ -17,21 +19,35 @@ class SessionRepositories {
       values: [sessionId, userId, status, createdAt, updatedAt],
     });
 
+    const cacheKey = `${process.env.REDIS_KEY}:sessions:${userId}`;
+    await this._cacheService.delete(cacheKey);
+
     return result.rows[0];
   }
 
   async getUserSessions(userId) {
-    const result = await this._pool.query({
-      text: 'SELECT id, status, created_at, updated_at FROM sessions WHERE user_id = $1 ORDER BY updated_at DESC',
-      values: [userId],
-    });
+    const cacheKey = `${process.env.REDIS_KEY}:sessions:${userId}`;
 
-    return result.rows.map((session) => ({
-      id: session.id,
-      status: session.status,
-      createdAt: session.created_at,
-      updatedAt: session.updated_at
-    }));
+    try {
+      const sessions = await this._cacheService.get(cacheKey);
+      return JSON.parse(sessions);
+    } catch (_error) {
+      const result = await this._pool.query({
+        text: 'SELECT id, status, created_at, updated_at FROM sessions WHERE user_id = $1 ORDER BY updated_at DESC',
+        values: [userId],
+      });
+
+      const sessions = result.rows.map((session) => ({
+        id: session.id,
+        status: session.status,
+        createdAt: session.created_at,
+        updatedAt: session.updated_at
+      }));
+
+      await this._cacheService.set(cacheKey, JSON.stringify(sessions));
+
+      return sessions;
+    }
   }
 
   async verifySessionId(sessionId) {
@@ -67,7 +83,7 @@ class SessionRepositories {
     };
   }
 
-  async updateSessionStatus(sessionId, status) {
+  async updateSessionStatus(userId, sessionId, status) {
     const updatedAt = new Date().toISOString();
 
     const result = await this._pool.query({
@@ -75,10 +91,13 @@ class SessionRepositories {
       values: [status, updatedAt, sessionId],
     });
 
+    const cacheKey = `${process.env.REDIS_KEY}:sessions:${userId}`;
+    await this._cacheService.delete(cacheKey);
+
     return result.rows[0];
   }
 
-  async updateSessionTimestamp(sessionId) {
+  async updateSessionTimestamp(userId, sessionId) {
     const updatedAt = new Date().toISOString();
 
     const result = await this._pool.query({
@@ -86,17 +105,23 @@ class SessionRepositories {
       values: [updatedAt, sessionId],
     });
 
+    const cacheKey = `${process.env.REDIS_KEY}:sessions:${userId}`;
+    await this._cacheService.delete(cacheKey);
+
     return {
       id: result.rows[0].id,
       updatedAt: result.rows[0].updated_at,
     };
   }
 
-  async deleteSession(sessionId) {
+  async deleteSession(userId, sessionId) {
     await this._pool.query({
       text: 'DELETE FROM sessions WHERE id = $1',
       values: [sessionId],
     });
+
+    const cacheKey = `${process.env.REDIS_KEY}:sessions:${userId}`;
+    await this._cacheService.delete(cacheKey);
   }
 
   async getSessionImage(sessionId) {
