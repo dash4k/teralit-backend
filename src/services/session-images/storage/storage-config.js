@@ -10,13 +10,13 @@ if (!fs.existsSync(UPLOAD_FOLDER)) {
 }
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOAD_FOLDER),
-  filename: (req, file, cb) => {
+  destination: (_req, _file, cb) => cb(null, UPLOAD_FOLDER),
+  filename: (_req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
   }
 });
 
-const fileFilter = (req, file, cb) => {
+const fileFilter = (_req, file, cb) => {
   const allowedMimetypes = ['image/jpeg', 'image/png'];
 
   if (allowedMimetypes.includes(file.mimetype)) cb(null, true);
