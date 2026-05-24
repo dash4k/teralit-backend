@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+
 /**
  * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
  */
@@ -15,12 +17,12 @@ export const up = (pgm) => {
       default: false,
       notNull: true,
     },
-    verificationToken: {
+    verification_token: {
       type: 'TEXT',
       default: null,
       notNull: false,
     },
-    verificationTokenExpiry: {
+    verification_token_expiry: {
       type: 'TIMESTAMPTZ',
       default: null,
       notNull: false,
@@ -36,7 +38,7 @@ export const up = (pgm) => {
 export const down = (pgm) => {
   pgm.dropColumns('users', [
     'verified',
-    'verificationToken',
-    'verificationTokenExpiry',
+    'verification_token',
+    'verification_token_expiry',
   ]);
 };
