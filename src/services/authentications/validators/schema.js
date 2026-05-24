@@ -6,6 +6,10 @@ export const registerPayloadSchema = Joi.object({
   name: Joi.string().required(),
 });
 
+export const resendVerificationPayloadSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
 export const loginPayloadSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().required(),
