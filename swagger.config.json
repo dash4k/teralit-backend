@@ -85,6 +85,117 @@
                 }
             }
         },
+        "/verify-email": {
+            "get": {
+                "tags": [
+                    "Authentications"
+                ],
+                "summary": "Verify user's email",
+                "description": "Flag user's account as verified",
+                "responses": {
+                    "200": {
+                        "description": "User successfully registered",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User verified successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or expired verification link",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid or expired verification link"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/resend-verification": {
+            "post": {
+                "tags": [
+                    "Authentications"
+                ],
+                "summary": "Resend user's verification email",
+                "description": "Update user's verification token and resend user's verification email",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "user@example.com"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Email sent successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Verification email sent"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid payload",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "tags": [
@@ -1370,7 +1481,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost:3000"
+            "url": "https://api.teralit.skin"
         }
     ],
     "components": {
