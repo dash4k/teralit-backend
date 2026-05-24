@@ -13,9 +13,10 @@ Built with **Node.js**, **Express**, **PostgreSQL**, and **Redis**, with JWT-bas
 - Image uploads per session
 - AI classification results per session
 - AI agent chat (Ollama-powered) within sessions
-- Swagger UI for API exploration
+- Swagger UI for API exploration with auto-generated specs
 - Database migrations via `node-pg-migrate`
 - CORS support for cross-origin requests
+- Email notifications via Resend
 
 ---
 
@@ -30,8 +31,9 @@ Built with **Node.js**, **Express**, **PostgreSQL**, and **Redis**, with JWT-bas
 | Auth | JWT (`jsonwebtoken`), bcrypt |
 | Validation | Joi |
 | File Upload | Multer |
-| AI Model | Custom Model API + Ollama Agent API |
-| API Docs | Swagger (`swagger-ui-express`) |
+| AI Model | Custom Model API + Ollama API |
+| API Docs | Swagger (`swagger-ui-express`, `swagger-autogen`) |
+| Email | Resend |
 | Linting | ESLint |
 | Dev Server | Nodemon |
 
@@ -43,7 +45,7 @@ Built with **Node.js**, **Express**, **PostgreSQL**, and **Redis**, with JWT-bas
 - PostgreSQL
 - Redis
 - A running Model API service (for classifications)
-- A running Ollama Agent API service (for chat)
+- A running Ollama API service (for chat)
 
 ---
 
@@ -87,9 +89,9 @@ cp .env.example .env
 | `MODEL_PROTOCOL` | Classification model API protocol |
 | `MODEL_HOST` | Classification model API host |
 | `MODEL_PORT` | Classification model API port |
-| `AGENT_PROTOCOL` | Ollama agent API protocol |
-| `AGENT_HOST` | Ollama agent API host |
-| `AGENT_PORT` | Ollama agent API port |
+| `AGENT_PROTOCOL` | Ollama API protocol |
+| `AGENT_HOST` | Ollama API host |
+| `AGENT_PORT` | Ollama API port |
 
 ### 4. Run database migrations
 
@@ -160,8 +162,8 @@ teralit-backend/
 ├── .env.example          # Environment variable template
 ├── package.json
 ├── package-lock.json
-├── swagger.config.json   # Generated Swagger spec
-└── eslint.config.js      # ESLint configuration
+├── eslint.config.js      # ESLint configuration
+└── README.md
 ```
 
 ---
