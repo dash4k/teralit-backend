@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import {
   register,
+  verifyEmail,
+  resendEmailVerification,
   login,
   refreshToken,
   logout
@@ -9,6 +11,7 @@ import authenticateToken from '../../../middlewares/auth.js';
 import validate from '../../../middlewares/validate.js';
 import {
   registerPayloadSchema,
+  resendVerificationPayloadSchema,
   loginPayloadSchema,
   putAuthenticationPayloadSchema,
   deleteAuthenticationPayloadSchema
@@ -17,6 +20,8 @@ import {
 const router = Router();
 
 router.post('/register', validate(registerPayloadSchema), register);
+router.get('/authentications/verify-email', verifyEmail);
+router.post('/authentications/resend-verification', validate(resendVerificationPayloadSchema), resendEmailVerification);
 router.post('/login', validate(loginPayloadSchema), login);
 router.put('/authentications', validate(putAuthenticationPayloadSchema), refreshToken);
 router.delete('/authentications', authenticateToken, validate(deleteAuthenticationPayloadSchema), logout);
