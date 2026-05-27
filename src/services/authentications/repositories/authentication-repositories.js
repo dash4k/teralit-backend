@@ -14,7 +14,7 @@ class AuthenticationRepositories {
       values: [email],
     });
 
-    if (!result.rows.lengt) return { emailExist: null, emailVerified: null };
+    if (!result.rows.length) return { emailExist: null, emailVerified: null };
 
     return {
       emailExist: result.rows[0].email,
@@ -69,7 +69,7 @@ class AuthenticationRepositories {
       values: [verificationToken, verificationTokenExpiry, email],
     });
 
-    return result.rows[0];
+    return result.rows[0].verification_token;
   }
 
   async verifyUserCredentials(email, password) {
