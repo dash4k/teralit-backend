@@ -38,7 +38,7 @@ export const resendEmailVerification = async (req, res, next) => {
   if (!emailExist) return next(new InvariantError('Invalid email'));
   if (emailVerified) return next(new InvariantError('Email is already verified'));
 
-  const token = AuthenticationRepositories.createToken(email);
+  const token = await AuthenticationRepositories.createToken(email);
 
   await sendVerificationEmail(email, token);
 

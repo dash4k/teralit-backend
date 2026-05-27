@@ -20,8 +20,8 @@ import {
 const router = Router();
 
 router.post('/register', validate(registerPayloadSchema), register);
-router.get('/authentications/verify-email', verifyEmail);
-router.post('/authentications/resend-verification', validate(resendVerificationPayloadSchema), resendEmailVerification);
+router.post('/verify-email', verifyEmail);
+router.post('/resend-verification', validate(resendVerificationPayloadSchema), resendEmailVerification);
 router.post('/login', validate(loginPayloadSchema), login);
 router.put('/authentications', validate(putAuthenticationPayloadSchema), refreshToken);
 router.delete('/authentications', authenticateToken, validate(deleteAuthenticationPayloadSchema), logout);
