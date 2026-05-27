@@ -86,7 +86,7 @@
             }
         },
         "/verify-email": {
-            "get": {
+            "post": {
                 "tags": [
                     "Authentications"
                 ],
