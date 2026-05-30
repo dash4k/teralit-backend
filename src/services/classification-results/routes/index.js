@@ -7,7 +7,7 @@ import authenticateToken from '../../../middlewares/auth.js';
 
 const router = Router({ mergeParams: true });
 
-router.post('/classifications', authenticateToken, makePrediction);
-router.get('/classifications', authenticateToken, viewPrediction);
+router.post('/classification', authenticateToken, makePrediction);
+router.get('/classification', authenticateToken, viewPrediction);
 
 export default router;
