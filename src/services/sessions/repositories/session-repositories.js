@@ -33,7 +33,7 @@ class SessionRepositories {
       return JSON.parse(sessions);
     } catch (_error) {
       const result = await this._pool.query({
-        text: 'SELECT id, status, created_at, updated_at FROM sessions WHERE user_id = $1 ORDER BY updated_at DESC',
+        text: 'SELECT sessions.id, sessions.status, sessions.created_at, sessions.updated_at, classification_results.diagnosis FROM sessions LEFT JOIN classification_results ON classification_results.session_id = sessions.id WHERE user_id = $1 ORDER BY updated_at DESC',
         values: [userId],
       });
 
@@ -41,7 +41,8 @@ class SessionRepositories {
         id: session.id,
         status: session.status,
         createdAt: session.created_at,
-        updatedAt: session.updated_at
+        updatedAt: session.updated_at,
+        diagnosis: session.diagnosis || null,
       }));
 
       await this._cacheService.set(cacheKey, JSON.stringify(sessions));
