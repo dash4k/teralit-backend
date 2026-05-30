@@ -8,7 +8,7 @@ import { upload } from '../storage/storage-config.js';
 
 const router = Router({ mergeParams: true });
 
-router.post('/images', authenticateToken, upload.single('image'), uploadImage);
-router.get('/images', authenticateToken, viewImage);
+router.post('/image', authenticateToken, upload.single('image'), uploadImage);
+router.get('/image', authenticateToken, viewImage);
 
 export default router;
