@@ -74,6 +74,7 @@ cp .env.example .env
 
 | Variable | Description |
 |---|---|
+| `APP_URL` | Application URL |
 | `PROTOCOL` | Server protocol (`http` or `https`) |
 | `HOST` | Server host (e.g. `localhost`) |
 | `PORT` | Server port (e.g. `3000`) |
@@ -92,6 +93,7 @@ cp .env.example .env
 | `AGENT_PROTOCOL` | Ollama API protocol |
 | `AGENT_HOST` | Ollama API host |
 | `AGENT_PORT` | Ollama API port |
+| `RESEND_API_KEY` | Resend API key for email notifications |
 
 ### 4. Run database migrations
 
@@ -150,19 +152,20 @@ teralit-backend/
 ├── migrations/           # node-pg-migrate migration files
 ├── src/
 │   ├── server.js         # App entry point
-│   ├── server/
-│   │   └── index.js      # Express app initialization
+│   ├── server/           # Express app initialization
 │   ├── routes/           # API route definitions
 │   ├── services/         # Business logic and external API calls
 │   ├── middlewares/      # Express middlewares (auth, error handling)
 │   ├── security/         # Security utilities (JWT, encryption)
 │   ├── cache/            # Redis cache utilities
+│   ├── emails/           # Email templates and utilities
 │   ├── exceptions/       # Custom error classes
 │   └── utils/            # Helper functions and utilities
 ├── .env.example          # Environment variable template
+├── swagger.config.json   # Swagger auto-generated specs
+├── eslint.config.js      # ESLint configuration
 ├── package.json
 ├── package-lock.json
-├── eslint.config.js      # ESLint configuration
 └── README.md
 ```
 
